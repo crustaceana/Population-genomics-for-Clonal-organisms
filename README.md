@@ -1,6 +1,3 @@
-
-### Now your full README file (with Module 5 included) looks like this:
-
 ```markdown
 # Population Genomics Analysis Script
 
