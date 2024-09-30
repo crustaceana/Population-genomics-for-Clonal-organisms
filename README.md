@@ -9,8 +9,7 @@
 </head>
 <body>
 
-<h1>Population Genomics Analysis for Clonal organisms</h1>
-<button onclick="copyToClipboard()">Copy Script</button>
+<button onclick="copyToClipboard()"></button>
 
 <h2>Index</h2>
 <ul>
@@ -389,16 +388,6 @@ plot_poppr_msn(filtered_data_loci_inform_indiv, msn, palette = cm.colors(n = nPo
 
 </code></pre>
 
-<script>
-function copyToClipboard() {
-    var copyText = document.querySelector("code").innerText;
-    navigator.clipboard.writeText(copyText).then(function() {
-        alert("Script copied to clipboard!");
-    }, function() {
-        alert("Failed to copy script.");
-    });
-}
-</script>
 
 </body>
 </html>
