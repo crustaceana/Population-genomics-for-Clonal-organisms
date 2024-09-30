@@ -13,6 +13,7 @@
             background-color: #f4f4f4;
             padding: 10px;
             border: 1px solid #ccc;
+            position: relative;
         }
         button {
             background-color: #4CAF50;
@@ -20,6 +21,9 @@
             padding: 10px 20px;
             border: none;
             cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
         button:hover {
             background-color: #45a049;
@@ -38,8 +42,7 @@
 </head>
 <body>
 
-<h1>Complete Population Genomics Analysis Script</h1>
-<button onclick="copyToClipboard()">Copy Script</button>
+<h1>Population Genomics Analysis for Clonal organisms</h1>
 
 <h2>Index</h2>
 <ul>
@@ -57,11 +60,11 @@
 </ul>
 
 <pre><code>
-# <a id="install"></a>POPULATION GENOMICS ANALYSIS SCRIPT
-# This script covers all necessary steps for population genomics in clonal organisms, with optional steps, useful tips, and a comprehensive workflow.
+# <h2 id="install"></a>POPULATION GENOMICS ANALYSIS FOR CLONAL ORGANISMS</h2>
+# This script covers a complete set of suggested steps for population genomics in clonal organisms, with optional steps, useful tips, and a comprehensive workflow.
 
 # 1. INSTALL AND LOAD REQUIRED PACKAGES
-required_packages <- c("poppr", "phangorn", "RClone", "radiator", "dartR", "vegan", "ape", "ggplot2", "conStruct", "pheatmap", 
+<pre><code id="code-install">required_packages <- c("poppr", "phangorn", "RClone", "radiator", "dartR", "vegan", "ape", "ggplot2", "conStruct", "pheatmap", 
                        "dplyr", "assignPOP", "leaflet", "RColorBrewer", "pcadapt", "qvalue", "vcfR", "hierfstat", "snpR", 
                        "LEA", "SNPRelate", "devtools", "OutFLANK", "ggmap", "patchwork", "sp", "sf")
 
@@ -75,12 +78,14 @@ install_load_packages <- function(packages) {
 }
 
 install_load_packages(required_packages)
+</code></pre>
+<button onclick="copyToClipboard('code-install')">Copy Code</button>
 
 
-# <a id="file-setup"></a>STEP 1: FILE LOADING AND INITIAL SETUP
+# <h2 id="file-setup"></a>STEP 1: FILE LOADING AND INITIAL SETUP</h2>
 # Load your dataset (handle .gen, .vcf, or GenAlEx files).
 
-x <- getfile()  # Optional interactive file selection
+<pre><code id="code-file-setup">x <- getfile()  # Optional interactive file selection
 x
 
 # Load genepop file or GenAlEx file based on your input format
@@ -108,6 +113,8 @@ vcf_data_radiator <- vcf_data_radiator[!is.na(vcf_data_radiator$Population), ]
 # Estimate individual heterozygosity (observed) and visualize using a Manhattan plot
 het_obs_data <- radiator::detect_mixed_genomes(vcf_data_radiator)
 plot(het_obs_data)
+</code></pre>
+<button onclick="copyToClipboard('code-file-setup')">Copy Code</button>
 
 # =======================================
 # NOTES ON INTERPRETING INDIVIDUAL HETEROZYGOSITY USING RADIATOR
@@ -141,17 +148,18 @@ plot(het_obs_data)
 
 
 
-# <a id="filtering"></a>STEP 2. DATA FILTERING AND CLEANUP
+# <h2 id="filtering"></a>STEP 2. DATA FILTERING AND CLEANUP</h2>
 # Apply initial filtering of loci and individuals with missing data and remove uninformative loci.
-filtered_data_loci <- missingno(genomic_data, "loci")  # Remove loci with >5% missing values
+<pre><code id="code-filtering">filtered_data_loci <- missingno(genomic_data, "loci")  # Remove loci with >5% missing values
 filtered_data_loci_inform <- informloci(filtered_data_loci, cutoff = 2/nInd(filtered_data_loci), quiet = FALSE)
 filtered_data_loci_inform_indiv <- missingno(filtered_data_loci_inform, "geno") # Remove individuals with >5% missing values
+</code></pre>
+<button onclick="copyToClipboard('code-filtering')">Copy Code</button>
 
 
-
-# <a id="modify-population"></a>STEP 3. MODIFY POPULATION NAMES AND REORDER POPULATIONS
+# <h2 id="modify-population"></a>STEP 3. MODIFY POPULATION NAMES AND REORDER POPULATIONS</h2>
 # Modify population names based on your dataset. You can customize the population names here.
-pop(filtered_data_loci_inform_indiv)[pop(filtered_data_loci_inform_indiv) == "Pop1"] <- "Location_A"
+<pre><code id="code-modify-population">pop(filtered_data_loci_inform_indiv)[pop(filtered_data_loci_inform_indiv) == "Pop1"] <- "Location_A"
 pop(filtered_data_loci_inform_indiv)[pop(filtered_data_loci_inform_indiv) == "Pop2"] <- "Location_B"
 pop(filtered_data_loci_inform_indiv)[pop(filtered_data_loci_inform_indiv) == "Pop3"] <- "Location_C"
 
@@ -165,6 +173,8 @@ reordered_indices <- order(factor(pop(filtered_data_loci_inform_indiv), levels =
 # Reorder dataset
 filtered_data_loci_inform_indiv <- filtered_data_loci_inform_indiv[reordered_indices, ]
 pop(filtered_data_loci_inform_indiv)
+</code></pre>
+<button onclick="copyToClipboard('code-modify-population')">Copy Code</button>
 
 # Keep technical replicates for the first analysis of genetic distance thresholds (to estimate clones).
 # Convert to genlight for further analysis
@@ -180,14 +190,15 @@ HWE_filtered_gl
 # Convert the filtered genlight object to a genind object for downstream analysis
 filtered_genomic_data_genind <- gl2gi(HWE_filtered_gl)
 filtered_genomic_data_genind
-
+</code></pre>
+<button onclick="copyToClipboard('code-modify-population')">Copy Code</button>
 
 # ============================================
 # STEP 4. DATA ANALYSIS MODULES START HERE
 # ============================================
 
-#<a id="analysis-with-replicates"></a>Module 1 uses genets, ramets and technical replicates for genetic distance estimation and create cut off values and get Mlg Ids. Once this created, the technical replicates need to be removed 
-# MODULE 1: Clonality Estimation
+#<h2 id="analysis-with-replicates"></a>Module 1 uses genets, ramets and technical replicates for genetic distance estimation and create cut off values and get Mlg Ids. Once this created, the technical replicates need to be removed</h2> 
+<pre><code id="code-analysis-with-replicates"># MODULE 1: Clonality Estimation
 # Calculate pairwise individual distances
 distance_matrix <- prevosti.dist(filtered_data_loci_inform_indiv)
 
@@ -227,23 +238,26 @@ plot(heterozygosity_overview)
 # Summary statistics using dartR
 summary_stats <- gl.report.heterozygosity(filtered_data_loci_inform_indiv, method = "pop")
 summary_stats
+</code></pre>
+<button onclick="copyToClipboard('code-analysis-with-replicates')">Copy Code</button>
+
 
 # ============================================
-# <a id="analysis-without-replicates"></a>MODULE 4 ONWARDS: ANALYSIS WITHOUT TECHNICAL REPLICATES (ONLY ONE INDIVIDUAL PER MLG, PER LOCALITY)
+# <h2 id="analysis-without-replicates"></a>MODULE 4 ONWARDS: ANALYSIS WITHOUT TECHNICAL REPLICATES (ONLY ONE INDIVIDUAL PER MLG, PER LOCALITY)</h2>
 # After Module 3, remove technical replicates to avoid bias, and keep only one individual per MLG (clone) per locality for the remaining analyses.
 
 # STEP: Remove technical replicates and retain only one individual per MLG (per locality)
 # Filter out technical replicates and reduce to one individual per MLG using poppr's clonecorrect function.
 
 # Retain only one individual per MLG per locality
-filtered_data_MLG_corrected <- clonecorrect(filtered_data_loci_inform_indiv, strata = ~Pop)
+<pre><code id="code-analysis-without-replicates">filtered_data_MLG_corrected <- clonecorrect(filtered_data_loci_inform_indiv, strata = ~Pop)
 
 # Verify the number of individuals after removing technical replicates
 pop(filtered_data_MLG_corrected)
 nInd(filtered_data_MLG_corrected)
 
 
-# <a id="pcoa"></a>MODULE 4: Principal Coordinate Analysis (PCoA) WITHOUT TECHNICAL REPLICATES
+# <h2 id="pcoa"></a>MODULE 4: Principal Coordinate Analysis (PCoA) WITHOUT TECHNICAL REPLICATES</h2>
 # Convert the filtered genind object (with one individual per MLG) to genlight for PCoA analysis.
 genomic_data_genlight <- gi2gl(filtered_data_MLG_corrected)
 
@@ -252,16 +266,20 @@ genomic_data_pcoa <- gl.pcoa(genomic_data_genlight)
 
 # Plot PCoA with population labels and ellipses
 gl.pcoa.plot(genomic_data_pcoa, genomic_data_genlight, ellipse = TRUE, plevel = 0.95, pop.labels = 'pop')
+</code></pre>
+<button onclick="copyToClipboard('code-analysis-without-replicates')">Copy Code</button>
 
 
-# <a id="phylogram"></a>MODULE 5: Phylogram Creation (OPTIONAL)
-# Phylograms for populations (without individual resolution)
+# <h2 id="phylogram"></a>MODULE 5: Phylogram Creation (OPTIONAL)</h2>
+<pre><code id="code-phylogram"># Phylograms for populations (without individual resolution)
 phylogram_nj <- gl.tree.nj(genomic_data_genlight, type = "phylogram")
 plot(phylogram_nj)
+</code></pre>
+<button onclick="copyToClipboard('code-phylogram')">Copy Code</button>
 
 
-# <a id="ancestry"></a>MODULE 6: Ancestry Analysis Using LEA
-# Convert dataset to structure format for LEA
+# <h2 id="ancestry"></a>MODULE 6: Ancestry Analysis Using LEA</h2>
+<pre><code id="code-ancestry"># Convert dataset to structure format for LEA
 gl2structure(genomic_data_genlight, addcolumns = pop(genomic_data_genlight), outfile = "dataset_structure.str")
 
 Convert from "structure" to gen input file for LEA
@@ -279,13 +297,14 @@ plot(LEA_snmf, col = "blue", pch = 19)
 # Best ancestry K value and barplot of ancestry proportions
 best_run <- which.min(cross.entropy(LEA_snmf, K = 2))
 barchart(LEA_snmf, K = 2, run = best_run)
+</code></pre>
+<button onclick="copyToClipboard('code-ancestry')">Copy Code</button>
 
-
-# <a id="local-adaptation"></a>MODULE 7: Local Adaptation with pcadapt
+# <h2 id="local-adaptation"></a>MODULE 7: Local Adaptation with pcadapt</h2>
 # Using pcadapt R package to detect local adaptation. The primary method uses Plink, and method  with radiator is provided as an alternative.
 # If the data filtering has not been performed yet, Proceed to step 1. Otherwise skip it and proceed to step 2. 
 
-# STEP 1: Remove uninformative loci and filter individuals with high missing data
+<pre><code id="code-local-adaptation"># STEP 1: Remove uninformative loci and filter individuals with high missing data
 # This step ensures that monomorphic loci and individuals with >5% missing data are removed before proceeding to local adaptation analysis.
 
 # Removing uninformative loci
@@ -348,6 +367,8 @@ plot(k_pcadapt, option = "manhattan")
 outlier_loci <- genomic_data_genlight$loc.names[outliers]
 outlier_loci
 
+
+
 #Make a manhattan plot of the outliers by creating a txt file with the corresponding chromosome, position and pvalues columns and using these
 # Load required libraries
 library(ggplot2)
@@ -394,6 +415,7 @@ manhattan_plot <- ggplot(data, aes(x = index, y = log10_pvalue, color = as.facto
 # Step 4: Display the plot
 print(manhattan_plot)
 
+
 # ---------------------
 # ALTERNATIVE METHOD: Using radiator to write pcadapt-compatible files (if Plink is not used)
 
@@ -406,25 +428,28 @@ pcadapt_data_lfmm <- read.pcadapt("dataset.lfmm", type = "lfmm")
 
 # Proceed with pcadapt analysis as described above using the pcadapt_data_lfmm object
 
+</code></pre>
+<button onclick="copyToClipboard('code-local-adaptation')">Copy Code</button>
 
 
-# <a id="visualization"></a>MODULE 8: Visualization of Genetic Relationships
-# Create a heatmap of genetic distances
+
+# <h2 id="visualization"></a>MODULE 8: Visualization of Genetic Relationships</h2>
+<pre><code id="code-visualization"># Create a heatmap of genetic distances
 pheatmap::pheatmap(as.matrix(distance_matrix), border_color = NA)
 
 # Minimum Spanning Network (MSN) for genetic relationships
 msn <- poppr.msn(filtered_data_loci_inform_indiv, distance_matrix, showplot = FALSE, include.ties = TRUE)
 plot_poppr_msn(filtered_data_loci_inform_indiv, msn, palette = cm.colors(n = nPop(filtered_data_loci_inform_indiv)), nodescale = 3)
-
 </code></pre>
+<button onclick="copyToClipboard('code-visualization')">Copy Code</button>
 
 <script>
-function copyToClipboard() {
-    var copyText = document.querySelector("code").innerText;
+function copyToClipboard(id) {
+    var copyText = document.getElementById(id).innerText;
     navigator.clipboard.writeText(copyText).then(function() {
-        alert("Script copied to clipboard!");
+        alert("Code copied to clipboard!");
     }, function() {
-        alert("Failed to copy script.");
+        alert("Failed to copy code.");
     });
 }
 </script>
