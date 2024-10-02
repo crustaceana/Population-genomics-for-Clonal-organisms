@@ -65,8 +65,9 @@ vcf_data_gl <- gl.read.vcf("./dataset.vcf")  # Replace with your .vcf file path
 # Add population data (if VCF), and convert genlight to genind for downstream processing
 pop_data <- read.table("./population.data.txt", sep = "\t", header = TRUE)
 pop(vcf_data_gl) <- pop_data$Population[match(indNames(vcf_data_gl), pop_data$Individual)]
-genomic_data_genind <- gl2gi(vcf_data_gl)
-
+genomic_data <- gl2gi(vcf_data_gl)
+genomic_data  # This is a 'genind' R object.
+ 
 # Perform basic quality control (QC) before filtering
 # For example, generate a Manhattan plot of individual heterozygosity using the radiator package
 genomic_converter(vcf_data_gl, strata = NULL, output = c("faststructure"), parallel.core = parallel::detectCores() - 2)
