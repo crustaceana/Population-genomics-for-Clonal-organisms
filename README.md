@@ -76,8 +76,8 @@ vcf_data_radiator <- radiator::read_rad("dataset.rad")
 vcf_data_radiator <- vcf_data_radiator[!is.na(vcf_data_radiator$Population), ]
 
 # Estimate individual heterozygosity (observed) and visualize using a Manhattan plot
-het_obs_data <- radiator::detect_mixed_genomes(vcf_data_radiator)
-plot(het_obs_data)
+radiator::detect_mixed_genomes(vcf_data_radiator)
+
 
 # =======================================
 # NOTES ON INTERPRETING INDIVIDUAL HETEROZYGOSITY USING RADIATOR
